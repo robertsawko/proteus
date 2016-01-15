@@ -7,14 +7,14 @@ all: install
 
 SHELL=/usr/bin/env bash
 
-PROTEUS ?= $(shell python -c "from __future__ import print_function; import os; print(os.path.realpath(os.getcwd()))")
+PROTEUS ?= $(shell python2 -c "from __future__ import print_function; import os; print(os.path.realpath(os.getcwd()))")
 VER_CMD = git log -1 --pretty="%H"
-PROTEUS_INSTALL_CMD = python setup.py install
+PROTEUS_INSTALL_CMD = python2 setup.py install
 PROTEUS_DEVELOP_CMD = pip install -e .
 # shell hack for now to automatically detect Garnet front-end nodes
-PROTEUS_ARCH ?= $(shell [[ $$(hostname) = garnet* ]] && echo "garnet.gnu" || python -c "import sys; print sys.platform")
+PROTEUS_ARCH ?= $(shell [[ $$(hostname) = garnet* ]] && echo "garnet.gnu" || python2 -c "import sys; print sys.platform")
 PROTEUS_PREFIX ?= ${PROTEUS}/${PROTEUS_ARCH}
-PROTEUS_PYTHON ?= ${PROTEUS_PREFIX}/bin/python
+PROTEUS_PYTHON ?= ${PROTEUS_PREFIX}/bin/python2
 PROTEUS_VERSION := $(shell ${VER_CMD})
 HASHDIST_DEFAULT_VERSION := $(shell cat .hashdist_default)
 HASHSTACK_DEFAULT_VERSION := $(shell cat .hashstack_default)
@@ -44,7 +44,7 @@ define howto
 	@echo 'export PATH=${PROTEUS_PREFIX}/bin:$${PATH}'
 	@echo ""
 	@echo "You can also invoke the Python interpreter directly:"
-	@echo "${PROTEUS_PREFIX}/bin/python"
+	@echo "${PROTEUS_PREFIX}/bin/python2"
 	@echo ""
 	@echo "You should now verify that the install succeeded by running:"
 	@echo "make check"
@@ -111,13 +111,13 @@ stack:
 	cd  stack && git checkout ${HASHSTACK_DEFAULT_VERSION}
 
 cygwin_bootstrap.done: stack/scripts/setup_cygstack.py stack/scripts/cygstack.txt
-	python stack/scripts/setup_cygstack.py stack/scripts/cygstack.txt
+	python2 stack/scripts/setup_cygstack.py stack/scripts/cygstack.txt
 	touch cygwin_bootstrap.done
 
 matlab_setup.done: stack stack/default.yaml hashdist
 	@echo "User requests MATLAB install"
 	@echo "MATLAB environment variable set to ${MATLAB}"
-	@python setupmatlab.py stack/default.yaml ${MATLAB}; if [ $$? -ne 0 ] ; then \
+	@python2 setupmatlab.py stack/default.yaml ${MATLAB}; if [ $$? -ne 0 ] ; then \
 	echo "+======================================================================================================+"; \
 	echo "Couldn't find matlab on PATH."; \
 	echo "Try"; \
@@ -168,7 +168,7 @@ ${PROTEUS_PREFIX}/bin/proteus ${PROTEUS_PREFIX}/bin/proteus_env.sh: profile
 	@echo "************************"
 
 	echo "#!/usr/bin/env bash" > ${PROTEUS_PREFIX}/bin/proteus
-	echo '${PROTEUS_ENV} python "$${@:1}"' >> ${PROTEUS_PREFIX}/bin/proteus
+	echo '${PROTEUS_ENV} python2 "$${@:1}"' >> ${PROTEUS_PREFIX}/bin/proteus
 	chmod a+x ${PROTEUS_PREFIX}/bin/proteus
 
 	echo "#!/usr/bin/env sh" > ${PROTEUS_PREFIX}/bin/proteus_env.sh
@@ -229,10 +229,10 @@ check:
 
 	@echo "************************"
 	@echo "Hello world Check!"
-	${PROTEUS_PREFIX}/bin/python -c "print 'hello world'"
+	${PROTEUS_PREFIX}/bin/python2 -c "print 'hello world'"
 	@echo "************************"
 	@echo "Proteus Partition Test"
-	source ${PROTEUS_PREFIX}/bin/proteus_env.sh; ${PROTEUS_PREFIX}/bin/python proteus/tests/ci/test_meshPartitionFromTetgenFiles.py
+	source ${PROTEUS_PREFIX}/bin/proteus_env.sh; ${PROTEUS_PREFIX}/bin/python2 proteus/tests/ci/test_meshPartitionFromTetgenFiles.py
 	@echo "************************"
 
 	@echo "************************"
